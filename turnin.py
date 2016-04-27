@@ -43,6 +43,8 @@ def turnin(args):
         print("Error: Token Mismatch")
         args['token'] = None
         turnin(args)
+    elif response.status_code == 403:
+        print("Error: Test Not Start or Test End")
     elif response.status_code == 404:
         print("Error: Question Not Found")
     elif response.status_code == 422:
@@ -100,8 +102,8 @@ if __name__ == "__main__":
         Config.write(cfg)
 
         args['url-view'] = args['url-view'].format(**args)
-        turnincheck(args)
-    print args
-    #if args['list'] is not None:
-        #args['url-recent'] = args['url-submit'].format(**args)
+        #turnincheck(args)
+    #print args
+    if args['list'] is not None:
+        args['url-recent'] = args['url-submit'].format(**args)
         #recent(args)
