@@ -95,8 +95,9 @@ def turnincheck(args):
 def recent(args):
     print(white("last 10 submissions:"))
     args['url-recent'] = args['url-recent'].format(**args)
+    data = {'page': args['page']}
     headers = {'X-Requested-With': 'XMLHttpRequest'}
-    response = requests.get(args['url-recent'], headers = headers)
+    response = requests.get(args['url-recent'], params=data, headers = headers)
     res = response.json()
     for data in res['data']:
         judge = data['judge']
@@ -118,7 +119,7 @@ if __name__ == "__main__":
         'uuid': None,
         'lang': None,
         'code': None,
-        'list': 0
+        'page': 1
     }
     Config = ConfigParser.ConfigParser(allow_no_value = True)
     for file in cfgfile:
@@ -133,10 +134,10 @@ if __name__ == "__main__":
     parser.add_argument('--url-view', dest = 'url-view', nargs = 1, help = "View Submit Url")
     parser.add_argument('--url-recent', dest = 'url-recent', nargs = 1, help = "Recent Url")
     parser.add_argument('-H', dest = 'host', nargs = 1, help = "Turnin Host")
-    parser.add_argument('-L', dest = 'lang', nargs = 1, help = "Code Language")
+    parser.add_argument('-l', dest = 'lang', nargs = 1, help = "Code Language")
     parser.add_argument('-t', dest = 'token', nargs = 1, help = "User's token (from webpage)")
     parser.add_argument('-u', dest = 'uuid', nargs = 1, help = "Question's UUID from (webpage)")
-    parser.add_argument('-l', dest = 'list', nargs = 1, type=int, help = "List Turnin")
+    parser.add_argument('-p', dest = 'page', nargs = 1, type=int, help = "List Turnin Page")
     parser.add_argument('code', nargs = '?', help = "Your Code")
     parser.set_defaults(**cfg)
     args = vars(parser.parse_args(sys.argv[1:]))
@@ -156,5 +157,5 @@ if __name__ == "__main__":
 
         turnincheck(args)
     #print args
-    if args['list'] is not None:
+    if args['page'] is not None:
         recent(args)
