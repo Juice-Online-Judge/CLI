@@ -6,6 +6,7 @@ import argparse
 import sys
 import os
 import requests
+import time
 
 cfgfile = {
     'global': '/etc/turnin.rc',
@@ -33,12 +34,18 @@ def turnin(args):
     if args['lang'] is None:
         args['lang'] = raw_input("Enter your Language(ex: C): ").lower()
 
+    args['url-submit'] = args['url-submit'].format(**args)
+    #print args['url-submit']
     data = {'language': args['lang']}
     files = {'code': open(args['code'])}
-    response = requests.post(args['url'], data = data, files = files)
+    headers = {'X-Requested-With': 'XMLHttpRequest'}
+    response = requests.post(args['url-submit'], data = data, files = files, headers = headers)
+
     if response.status_code == 201:
         print("Success submitted")
-        args['id'] = 0
+        print response.json()
+        data = response.json()
+        args['id'] = data['id']
     elif response.status_code == 401:
         print("Error: Token Mismatch")
         args['token'] = None
@@ -49,10 +56,42 @@ def turnin(args):
         print("Error: Question Not Found")
     elif response.status_code == 422:
         print("Error: Language Not Support or File Error")
-    elif response.status_code == 520:
+        print(response.text)
+    elif response.status_code in (500, 520):
         print("Error: Server Error")
     else:
-        print("Unknown Error! Please contact TA")
+        print("Unknown Error(%d)! Please contact TA" % response.status_code)
+        print(response.text)
+
+def turnincheck(args):
+    print("wait for judging:")
+    args['url-view'] = args['url-view'].format(**args)
+    headers = {'X-Requested-With': 'XMLHttpRequest'}
+    for t in (1, 2, 2):
+        time.sleep(t)
+        response = requests.get(args['url-view'], headers = headers)
+        data = response.json()
+        if data['judge'] is not None:
+            print "%s '%s': %s" % (data['id'], question['title'], judge['result'])
+            print "\ttime: %s memory: %s" % (judge['time'], judge['memory'])
+            print "\tmessage: %s" % (judge['judge_message'])
+            break
+    
+def recent(args):
+    print("last 10 submissions:")
+    args['url-recent'] = args['url-recent'].format(**args)
+    headers = {'X-Requested-With': 'XMLHttpRequest'}
+    response = requests.get(args['url-recent'], headers = headers)
+    res = response.json()
+    for data in res['data']:
+        judge = data['judge']
+        question = data['question']
+        if data['judge'] is not None:
+            print "%s '%s': %s" % (data['id'], question['title'], judge['result'])
+            print "\ttime: %s memory: %s" % (judge['time'], judge['memory'])
+            print "\tmessage: %s" % (judge['judge_message'])
+        else:
+            print "%s '%s': Not Judge" % (data['id'], question['title'])
 
 if __name__ == "__main__":
     cfg = {
@@ -89,7 +128,6 @@ if __name__ == "__main__":
 
     args['id'] = None
     if args['code'] is not None:
-        args['url-submit'] = args['url-submit'].format(**args)
         turnin(args)
     if args['id'] is not None:
         # Write Token
@@ -101,9 +139,7 @@ if __name__ == "__main__":
         Config.set('defaults', 'token', args['token'])
         Config.write(cfg)
 
-        args['url-view'] = args['url-view'].format(**args)
-        #turnincheck(args)
+        turnincheck(args)
     #print args
     if args['list'] is not None:
-        args['url-recent'] = args['url-submit'].format(**args)
-        #recent(args)
+        recent(args)
