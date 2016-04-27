@@ -20,19 +20,31 @@ langs = {
     '.py': 'python'
 }
 
+def red(s): return ("\033[1;31m%s\033[m" % s)
+def green(s): return ("\033[1;32m%s\033[m" % s)
+def yellow(s): return ("\033[1;33m%s\033[m" % s)
+def blue(s): return ("\033[1;34m%s\033[m" % s)
+def magenta(s): return ("\033[1;35m%s\033[m" % s)
+def cyan(s): return ("\033[1;36m%s\033[m" % s)
+def white(s): return ("\033[1;37m%s\033[m" % s)
+def autocolor(s):
+    if s in ('AC', ): return green(s)
+    elif s in ('WA', 'SE', 'CE', 'RE', 'TLE', 'MLE', 'OLE', 'RF'): return red(s)
+
 def turnin(args):
+    print(white("Turnin code:"))
     if not os.path.isfile(args['code']):
-        print('Error: Not a regular file: %s' % (args['code']))
+        print(red('Error: Not a regular file: %s' % (args['code'])))
         return
     if args['token'] is None:
-        args['token'] = raw_input("Enter your token: ")
+        args['token'] = raw_input(green("Enter your token: "))
     if args['uuid'] is None:
-        args['uuid'] = raw_input("Enter question's UUID: ")
+        args['uuid'] = raw_input(green("Enter question's UUID: "))
     for lang in langs:
         if args['code'].endswith(lang):
             args['lang'] = langs[lang]
     if args['lang'] is None:
-        args['lang'] = raw_input("Enter your Language(ex: C): ").lower()
+        args['lang'] = raw_input(green("Enter your Language(ex: C): ").lower())
 
     args['url-submit'] = args['url-submit'].format(**args)
     #print args['url-submit']
@@ -42,29 +54,30 @@ def turnin(args):
     response = requests.post(args['url-submit'], data = data, files = files, headers = headers)
 
     if response.status_code == 201:
-        print("Success submitted")
+        print(green("Success submitted"))
         print response.json()
         data = response.json()
         args['id'] = data['id']
     elif response.status_code == 401:
-        print("Error: Token Mismatch")
+        print(red("Error: Token Mismatch"))
         args['token'] = None
         turnin(args)
     elif response.status_code == 403:
-        print("Error: Test Not Start or Test End")
+        print(red("Error: Test Not Start or Test End"))
     elif response.status_code == 404:
-        print("Error: Question Not Found")
+        print(red("Error: Question Not Found"))
     elif response.status_code == 422:
-        print("Error: Language Not Support or File Error")
+        print(red("Error: Language Not Support or File Error"))
         print(response.text)
     elif response.status_code in (500, 520):
-        print("Error: Server Error")
+        print(red("Error: Server Error"))
     else:
-        print("Unknown Error(%d)! Please contact TA" % response.status_code)
+        print(red("Unknown Error(%d)! Please contact TA" % response.status_code))
         print(response.text)
+    print("")
 
 def turnincheck(args):
-    print("wait for judging:")
+    print(white("wait for judging:"))
     args['url-view'] = args['url-view'].format(**args)
     headers = {'X-Requested-With': 'XMLHttpRequest'}
     for t in (1, 2, 2):
@@ -72,13 +85,15 @@ def turnincheck(args):
         response = requests.get(args['url-view'], headers = headers)
         data = response.json()
         if data['judge'] is not None:
-            print "%s '%s': %s" % (data['id'], question['title'], judge['result'])
-            print "\ttime: %s memory: %s" % (judge['time'], judge['memory'])
-            print "\tmessage: %s" % (judge['judge_message'])
+            print "%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result']))
+            print "\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory']))
+            print "\t%s %s" % (green("message:"), white(judge['judge_message']))
             break
+    print "%s %s: Not Judge" % (cyan(data['id']), yellow(question['title']))
+    print("")
     
 def recent(args):
-    print("last 10 submissions:")
+    print(white("last 10 submissions:"))
     args['url-recent'] = args['url-recent'].format(**args)
     headers = {'X-Requested-With': 'XMLHttpRequest'}
     response = requests.get(args['url-recent'], headers = headers)
@@ -87,11 +102,11 @@ def recent(args):
         judge = data['judge']
         question = data['question']
         if data['judge'] is not None:
-            print "%s '%s': %s" % (data['id'], question['title'], judge['result'])
-            print "\ttime: %s memory: %s" % (judge['time'], judge['memory'])
-            print "\tmessage: %s" % (judge['judge_message'])
+            print "%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result']))
+            print "\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory']))
+            print "\t%s %s" % (green("message:"), white(judge['judge_message']))
         else:
-            print "%s '%s': Not Judge" % (data['id'], question['title'])
+            print "%s %s: Not Judge" % (cyan(data['id']), yellow(question['title']))
 
 if __name__ == "__main__":
     cfg = {
