@@ -31,6 +31,16 @@ def autocolor(s):
     if s in ('AC', ): return green(s)
     elif s in ('WA', 'SE', 'CE', 'RE', 'TLE', 'MLE', 'OLE', 'RF'): return red(s)
 
+def wrtok(args):
+    cfg = open(cfgfile['home'], 'w+')
+    Config = ConfigParser.ConfigParser()
+    Config.read(cfg)
+    if not Config.has_section('defaults'):
+        Config.add_section('defaults')
+    Config.set('defaults', 'token', args['token'])
+    Config.write(cfg)
+    cfg.close()
+
 def turnin(args):
     print(white("Turnin code:"))
     if not os.path.isfile(args['code']):
@@ -51,13 +61,14 @@ def turnin(args):
     data = {'language': args['lang']}
     files = {'code': open(args['code'])}
     headers = {'X-Requested-With': 'XMLHttpRequest'}
-    response = requests.post(args['url-submit'], data = data, files = files, headers = headers)
+    response = requests.post(args['url-submit'], data = data, files = files, headers = headers, timeout = 5)
 
     if response.status_code == 201:
         print(green("Success submitted"))
-        print response.json()
+        #print response.json()
         data = response.json()
         args['id'] = data['id']
+        wrtok(args)
     elif response.status_code == 401:
         print(red("Error: Token Mismatch"))
         args['token'] = None
@@ -82,11 +93,13 @@ def turnincheck(args):
     headers = {'X-Requested-With': 'XMLHttpRequest'}
     for t in (1, 2, 2):
         time.sleep(t)
-        response = requests.get(args['url-view'], headers = headers)
+        response = requests.get(args['url-view'], headers = headers, timeout = 5)
         if response.status_code != 200:
             print(red("Error: %d" % response.status_code))
             return
         data = response.json()
+        judge = data['judge']
+        question = data['question']
         if data['judge'] is not None:
             print "%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result']))
             print "\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory']))
@@ -96,12 +109,20 @@ def turnincheck(args):
     print("")
     
 def recent(args):
-    print(white("last 10 submissions:"))
+    print(white("last 5 submissions:"))
+    if args['token'] is None:
+        args['token'] = raw_input(green("Enter your token: "))
     args['url-recent'] = args['url-recent'].format(**args)
     data = {'page': args['page']}
     headers = {'X-Requested-With': 'XMLHttpRequest'}
-    response = requests.get(args['url-recent'], params=data, headers = headers)
-    if response.status_code != 200:
+    response = requests.get(args['url-recent'], params=data, headers = headers, timeout = 5)
+    if response.status_code == 200:
+        wrtok(args)
+        pass
+    elif response.status_code in (400, 401):
+        print(red("Error: Token Mismatch"))
+        return
+    else:
         print(red("Error: %d" % response.status_code))
         return
     res = response.json()
@@ -136,14 +157,14 @@ if __name__ == "__main__":
                     cfg[tag] = Config.get('defaults', tag)
 
     parser = argparse.ArgumentParser(description = "Turnin Code to Juice", prog = sys.argv[0])
-    parser.add_argument('--url-submit', dest = 'url-submit', nargs = 1, help = "Submit Url")
-    parser.add_argument('--url-view', dest = 'url-view', nargs = 1, help = "View Submit Url")
-    parser.add_argument('--url-recent', dest = 'url-recent', nargs = 1, help = "Recent Url")
-    parser.add_argument('-H', dest = 'host', nargs = 1, help = "Turnin Host")
-    parser.add_argument('-l', dest = 'lang', nargs = 1, help = "Code Language")
-    parser.add_argument('-t', dest = 'token', nargs = 1, help = "User's token (from webpage)")
-    parser.add_argument('-u', dest = 'uuid', nargs = 1, help = "Question's UUID from (webpage)")
-    parser.add_argument('-p', dest = 'page', nargs = 1, type=int, help = "List Turnin Page")
+    parser.add_argument('--url-submit', dest = 'url-submit', help = "Submit Url")
+    parser.add_argument('--url-view', dest = 'url-view', help = "View Submit Url")
+    parser.add_argument('--url-recent', dest = 'url-recent', help = "Recent Url")
+    parser.add_argument('-H', dest = 'host', help = "Turnin Host")
+    parser.add_argument('-l', dest = 'lang', help = "Code Language")
+    parser.add_argument('-t', dest = 'token', help = "User's token (from webpage)")
+    parser.add_argument('-u', dest = 'uuid', help = "Question's UUID from (webpage)")
+    parser.add_argument('-p', dest = 'page', type=int, help = "List Turnin Page")
     parser.add_argument('code', nargs = '?', help = "Your Code")
     parser.set_defaults(**cfg)
     args = vars(parser.parse_args(sys.argv[1:]))
@@ -152,15 +173,6 @@ if __name__ == "__main__":
     if args['code'] is not None:
         turnin(args)
     if args['id'] is not None:
-        # Write Token
-        cfg = open(cfgfile['home'], 'w+')
-        Config = ConfigParser.ConfigParser()
-        Config.read(cfg)
-        if not Config.has_section('defaults'):
-            Config.add_section('defaults')
-        Config.set('defaults', 'token', args['token'])
-        Config.write(cfg)
-
         turnincheck(args)
     #print args
     if args['page'] is not None:
