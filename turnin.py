@@ -83,6 +83,9 @@ def turnincheck(args):
     for t in (1, 2, 2):
         time.sleep(t)
         response = requests.get(args['url-view'], headers = headers)
+        if response.status_code != 200:
+            print(red("Error: %d" % response.status_code))
+            return
         data = response.json()
         if data['judge'] is not None:
             print "%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result']))
@@ -98,6 +101,9 @@ def recent(args):
     data = {'page': args['page']}
     headers = {'X-Requested-With': 'XMLHttpRequest'}
     response = requests.get(args['url-recent'], params=data, headers = headers)
+    if response.status_code != 200:
+        print(red("Error: %d" % response.status_code))
+        return
     res = response.json()
     for data in res['data']:
         judge = data['judge']
