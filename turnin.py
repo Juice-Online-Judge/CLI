@@ -77,7 +77,7 @@ def turnin(args):
         print(red("Error: Question Not Found"))
     elif response.status_code == 422:
         print(red("Error: Language Not Support or File Error"))
-        print(response.text)
+        #print(response.text)
     elif response.status_code in (500, 520):
         print(red("Error: Server Error"))
     else:
@@ -101,6 +101,7 @@ def turnincheck(args):
             print "%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result']))
             print "\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory']))
             print "\t%s %s" % (green("message:"), white(judge['judge_message']))
+            print("")
             return
     print "%s %s: Not Judge" % (cyan(data['id']), yellow(question['title']))
     print("")
