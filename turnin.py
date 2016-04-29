@@ -39,6 +39,8 @@ def wrtok(args):
     if not Config.has_section('defaults'):
         Config.add_section('defaults')
     Config.set('defaults', 'token', args['token'])
+    if args['uuid'] is not None:
+        Config.set('defaults', 'lastuuid', args['uuid'])
     Config.write(cfg)
     cfg.close()
 
@@ -49,7 +51,8 @@ def turnin(args):
     if args['token'] is None:
         args['token'] = raw_input(green("Enter your token: "))
     if args['uuid'] is None:
-        args['uuid'] = raw_input(green("Enter question's UUID: "))
+        args['uuid'] = raw_input(green("Enter question's UUID [%s]: " % (args['lastuuid'])))
+        if args['uuid'] == '': args['uuid'] = args['lastuuid']
     for lang in langs:
         if args['code'].endswith(lang):
             args['lang'] = langs[lang]
@@ -144,6 +147,7 @@ if __name__ == "__main__":
         'url-recent': 'https://{host}/api/v1/submissions/recent?token={token}',
         'token': None,
         'uuid': None,
+        'lastuuid': None,
         'lang': None,
         'code': None,
         'page': 1
