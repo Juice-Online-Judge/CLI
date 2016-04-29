@@ -101,7 +101,7 @@ def turnincheck(args):
         data = response.json()
         judge = data['judge']
         question = data['question']
-        if data['judge'] is not None:
+        if data['judge'] is not None and judge['score'] is not None and judge['score'] != '-1.000':
             print "%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result']))
             print "\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory']))
             print "\t%s %s" % (green("message:"), white(judge['judge_message']))
@@ -121,7 +121,7 @@ def recent(args):
         wrtok(args)
         pass
     elif response.status_code in (400, 401):
-        print(red("Error: Token Mismatch" % (response.status_code)))
+        print(red("Error: Token Mismatch"))
         args['token'] = None
         recent(args)
         return
@@ -132,7 +132,7 @@ def recent(args):
     for data in res['data']:
         judge = data['judge']
         question = data['question']
-        if data['judge'] is not None:
+        if data['judge'] is not None and judge['score'] != None and judge['score'] != '-1.000':
             print "%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result']))
             print "\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory']))
             print "\t%s %s" % (green("message:"), white(judge['judge_message']))
