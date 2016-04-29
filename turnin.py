@@ -118,7 +118,7 @@ def recent(args):
         wrtok(args)
         pass
     elif response.status_code in (400, 401):
-        print(red("Error(%d): Token Mismatch" % (response.status_code)))
+        print(red("Error: Token Mismatch" % (response.status_code)))
         args['token'] = None
         recent(args)
         return
