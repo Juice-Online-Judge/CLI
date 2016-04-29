@@ -29,7 +29,8 @@ def cyan(s): return ("\033[1;36m%s\033[m" % s)
 def white(s): return ("\033[1;37m%s\033[m" % s)
 def autocolor(s):
     if s in ('AC', ): return green(s)
-    elif s in ('WA', 'SE', 'CE', 'RE', 'TLE', 'MLE', 'OLE', 'RF'): return red(s)
+    elif s in ('WA', 'SE', 'CE', 'RE', 'TLE', 'MLE', 'OLE', 'RF', 'NE'): return red(s)
+    else: return s
 
 def wrtok(args):
     cfg = open(cfgfile['home'], 'w+')
