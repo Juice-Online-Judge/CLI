@@ -55,16 +55,15 @@ def turnin(args):
     if args['lang'] is None:
         args['lang'] = raw_input(green("Enter your Language(ex: C): ").lower())
 
-    args['url-submit'] = args['url-submit'].format(**args)
-    #print args['url-submit']
+    url_submit = args['url-submit'].format(**args)
+    #print url_submit
     data = {'language': args['lang']}
     files = {'code': open(args['code'])}
     headers = {'X-Requested-With': 'XMLHttpRequest'}
-    response = requests.post(args['url-submit'], data = data, files = files, headers = headers, timeout = 5)
+    response = requests.post(url_submit, data = data, files = files, headers = headers, timeout = 5)
 
     if response.status_code == 201:
         print(green("Success submitted"))
-        #print response.json()
         data = response.json()
         args['id'] = data['id']
         wrtok(args)
@@ -87,11 +86,11 @@ def turnin(args):
     print("")
 
 def turnincheck(args):
-    args['url-view'] = args['url-view'].format(**args)
+    url_view = args['url-view'].format(**args)
     headers = {'X-Requested-With': 'XMLHttpRequest'}
     for t in (1, 2, 2):
         time.sleep(t)
-        response = requests.get(args['url-view'], headers = headers, timeout = 5)
+        response = requests.get(url_view, headers = headers, timeout = 5)
         if response.status_code != 200:
             print(red("Error: %d" % response.status_code))
             return
@@ -109,15 +108,15 @@ def turnincheck(args):
 def recent(args):
     if args['token'] is None:
         args['token'] = raw_input(green("Enter your token: "))
-    args['url-recent'] = args['url-recent'].format(**args)
+    url_recent = args['url-recent'].format(**args)
     data = {'page': args['page']}
     headers = {'X-Requested-With': 'XMLHttpRequest'}
-    response = requests.get(args['url-recent'], params=data, headers = headers, timeout = 5)
+    response = requests.get(url_recent, params=data, headers = headers, timeout = 5)
     if response.status_code == 200:
         wrtok(args)
         pass
     elif response.status_code in (400, 401):
-        print(red("Error: Token Mismatch"))
+        print(red("Error(%d): Token Mismatch" % (response.status_code)))
         args['token'] = None
         recent(args)
         return
