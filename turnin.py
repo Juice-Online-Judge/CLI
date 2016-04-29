@@ -107,7 +107,7 @@ def turnincheck(args):
             print "\t%s %s" % (green("message:"), white(judge['judge_message']))
             print("")
             return
-    print "%s %s: Not Judge" % (cyan(data['id']), yellow(question['title']))
+    print "%s %s: Pending" % (cyan(data['id']), yellow(question['title']))
     print("")
     
 def recent(args):
@@ -137,7 +137,7 @@ def recent(args):
             print "\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory']))
             print "\t%s %s" % (green("message:"), white(judge['judge_message']))
         else:
-            print "%s %s: Not Judge" % (cyan(data['id']), yellow(question['title']))
+            print "%s %s: Pending" % (cyan(data['id']), yellow(question['title']))
 
 if __name__ == "__main__":
     cfg = {
