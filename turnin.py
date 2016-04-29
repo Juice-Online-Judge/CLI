@@ -104,7 +104,7 @@ def turnincheck(args):
             print "%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result']))
             print "\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory']))
             print "\t%s %s" % (green("message:"), white(judge['judge_message']))
-            break
+            return
     print "%s %s: Not Judge" % (cyan(data['id']), yellow(question['title']))
     print("")
     
