@@ -42,7 +42,6 @@ def wrtok(args):
     cfg.close()
 
 def turnin(args):
-    print(white("Turnin code:"))
     if not os.path.isfile(args['code']):
         print(red('Error: Not a regular file: %s' % (args['code'])))
         return
@@ -75,7 +74,7 @@ def turnin(args):
         turnin(args)
     elif response.status_code == 403:
         print(red("Error: Test Not Start or Test End"))
-    elif response.status_code == 404:
+    elif response.status_code in (404, 405):
         print(red("Error: Question Not Found"))
     elif response.status_code == 422:
         print(red("Error: Language Not Support or File Error"))
@@ -88,7 +87,6 @@ def turnin(args):
     print("")
 
 def turnincheck(args):
-    print(white("wait for judging:"))
     args['url-view'] = args['url-view'].format(**args)
     headers = {'X-Requested-With': 'XMLHttpRequest'}
     for t in (1, 2, 2):
@@ -109,7 +107,6 @@ def turnincheck(args):
     print("")
     
 def recent(args):
-    print(white("last 5 submissions:"))
     if args['token'] is None:
         args['token'] = raw_input(green("Enter your token: "))
     args['url-recent'] = args['url-recent'].format(**args)
@@ -121,6 +118,8 @@ def recent(args):
         pass
     elif response.status_code in (400, 401):
         print(red("Error: Token Mismatch"))
+        args['token'] = None
+        recent(args)
         return
     else:
         print(red("Error: %d" % response.status_code))
@@ -171,9 +170,11 @@ if __name__ == "__main__":
 
     args['id'] = None
     if args['code'] is not None:
+        print(white("Turnin code:"))
         turnin(args)
     if args['id'] is not None:
+        print(white("wait for judging:"))
         turnincheck(args)
-    #print args
     if args['page'] is not None:
+        print(white("last 5 submissions:"))
         recent(args)
