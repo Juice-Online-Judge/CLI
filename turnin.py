@@ -102,12 +102,12 @@ def turnincheck(args):
         judge = data['judge']
         question = data['question']
         if data['judge'] is not None and judge['score'] is not None and judge['score'] != '-1.000':
-            print "%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result']))
-            print "\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory']))
-            print "\t%s %s" % (green("message:"), white(judge['judge_message']))
+            print("%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result'])))
+            print("\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory'])))
+            print("\t%s %s" % (green("message:"), white(judge['judge_message'])))
             print("")
             return
-    print "%s %s: Pending" % (cyan(data['id']), yellow(question['title']))
+    print("%s %s: Pending" % (cyan(data['id']), yellow(question['title'])))
     print("")
     
 def recent(args):
@@ -133,11 +133,11 @@ def recent(args):
         judge = data['judge']
         question = data['question']
         if data['judge'] is not None and judge['score'] != None and judge['score'] != '-1.000':
-            print "%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result']))
-            print "\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory']))
-            print "\t%s %s" % (green("message:"), white(judge['judge_message']))
+            print("%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result'])))
+            print("\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory'])))
+            print("\t%s %s" % (green("message:"), white(judge['judge_message'])))
         else:
-            print "%s %s: Pending" % (cyan(data['id']), yellow(question['title']))
+            print("%s %s: Pending" % (cyan(data['id']), yellow(question['title'])))
 
 if __name__ == "__main__":
     cfg = {
@@ -174,12 +174,15 @@ if __name__ == "__main__":
     args = vars(parser.parse_args(sys.argv[1:]))
 
     args['id'] = None
-    if args['code'] is not None:
-        print(white("Turnin code:"))
-        turnin(args)
-    if args['id'] is not None:
-        print(white("wait for judging:"))
-        turnincheck(args)
-    if args['page'] is not None:
-        print(white("last 5 submissions:"))
-        recent(args)
+    try:
+        if args['code'] is not None:
+            print(white("Turnin code:"))
+            turnin(args)
+        if args['id'] is not None:
+            print(white("wait for judging:"))
+            turnincheck(args)
+        if args['page'] is not None:
+            print(white("last 5 submissions:"))
+            recent(args)
+    except KeyboardInterrupt as e:
+        print("")
