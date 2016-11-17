@@ -63,7 +63,7 @@ def turnin(args):
     #print url_submit
     data = {'language': args['lang']}
     files = {'code': open(args['code'])}
-    headers = {'X-Requested-With': 'XMLHttpRequest'}
+    headers = {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/vnd.juice.v1+json'}
     response = requests.post(url_submit, data = data, files = files, headers = headers, timeout = 5)
 
     if response.status_code == 201:
@@ -91,7 +91,7 @@ def turnin(args):
 
 def turnincheck(args):
     url_view = args['url-view'].format(**args)
-    headers = {'X-Requested-With': 'XMLHttpRequest'}
+    headers = {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/vnd.juice.v1+json'}
     for t in (1, 2, 2):
         time.sleep(t)
         response = requests.get(url_view, headers = headers, timeout = 5)
@@ -115,7 +115,7 @@ def recent(args):
         args['token'] = raw_input(green("Enter your token: "))
     url_recent = args['url-recent'].format(**args)
     data = {'page': args['page']}
-    headers = {'X-Requested-With': 'XMLHttpRequest'}
+    headers = {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/vnd.juice.v1+json'}
     response = requests.get(url_recent, params=data, headers = headers, timeout = 5)
     if response.status_code == 200:
         wrtok(args)
@@ -142,9 +142,9 @@ def recent(args):
 if __name__ == "__main__":
     cfg = {
         'host': 'juice.cs.ccu.edu.tw',
-        'url-submit': 'https://{host}/api/v1/submissions/{uuid}/cli?token={token}',
-        'url-view': 'https://{host}/api/v1/submissions/{id}?token={token}',
-        'url-recent': 'https://{host}/api/v1/submissions/recent?token={token}',
+        'url-submit': 'https://{host}/api/submissions/{uuid}/cli?token={token}',
+        'url-view': 'https://{host}/api/submissions/{id}?token={token}',
+        'url-recent': 'https://{host}/api/submissions/recent?token={token}',
         'token': None,
         'uuid': None,
         'lastuuid': None,
