@@ -69,7 +69,7 @@ def turnin(args):
     if response.status_code == 201:
         print(green("Success submitted"))
         data = response.json()
-        args['id'] = data['id']
+        args['id'] = data['submission']['id']
         wrtok(args)
     elif response.status_code == 401:
         print(red("Error: Token Mismatch"))
@@ -99,17 +99,17 @@ def turnincheck(args):
             print(red("Error: %d" % response.status_code))
             return
         data = response.json()
-        judge = data['judge']
-        question = data['question']
-        if data['judge'] is not None and judge['score'] is not None and judge['score'] != '-1.000':
+        judge = data['submission']['judge']
+        question = data['submission']['question']
+        if data['submission']['judge'] is not None and judge['score'] is not None and judge['score'] != '-1.000':
             print("%s %s: %s" % (cyan(data['id']), yellow(question['title']), autocolor(judge['result'])))
             print("\t%s %s %s %s" % (green("time:"), white(judge['time']), green("memory:"), white(judge['memory'])))
             print("\t%s %s" % (green("message:"), white(judge['judge_message'])))
             print("")
             return
-    print("%s %s: Pending" % (cyan(data['id']), yellow(question['title'])))
+    print("%s %s: Pending" % (cyan(data['submission']['id']), yellow(question['title'])))
     print("")
-    
+
 def recent(args):
     if args['token'] is None:
         args['token'] = raw_input(green("Enter your token: "))
